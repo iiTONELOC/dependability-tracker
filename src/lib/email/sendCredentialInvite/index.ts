@@ -1,7 +1,8 @@
 import {Email} from '../types';
-import {PORT} from '../../../server';
+import {ip} from '../../../server/ip';
 import {sendEmail} from '../sendEmail';
 import {credentialInviteTemplate} from '../email-templates';
+import {checkForTLS, PORT, TLS_PORT, IS_DEPLOYED} from '../../../server';
 
 export const sendCredentialInvite = async (
   email: string,
@@ -9,9 +10,15 @@ export const sendCredentialInvite = async (
   inviteId: string,
   username: string
 ): Promise<boolean> => {
-  const port = PORT;
+  const {hasSupportForTLS} = checkForTLS();
 
-  const URL = `${process.env.APP_HOST_URL}:${port}/sign-up/`;
+  const port = hasSupportForTLS ? TLS_PORT : PORT;
+  const host = hasSupportForTLS ? ip : 'localhost';
+  const protocol = hasSupportForTLS ? 'https' : 'http';
+
+  const URL = IS_DEPLOYED
+    ? `${process.env.DEPLOYED_URL}/sign-up/`
+    : `${protocol}://${host}:${port}/sign-up/`;
 
   const emailData: Email = {
     from: process.env.EMAIL_SENDER as string,

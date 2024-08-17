@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { AdminDashboardData } from '../../../lib/apiController/dashboard';
+import {useEffect, useRef} from 'react';
+import {AdminDashboardData} from '../../../lib/apiController/dashboard';
 
 export const months = [
   'January',
@@ -18,13 +18,13 @@ export const months = [
 
 export function CallOutTrendsChart({
   callOutTrends
-}: Readonly<{ callOutTrends: AdminDashboardData['callOutTrends'] }>) {
+}: Readonly<{callOutTrends: AdminDashboardData['callOutTrends']}>) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<any>(null); // Using a ref to store the chart instance
 
   useEffect(() => {
     const createChart = async () => {
-      const { Chart, registerables } = await import('chart.js/auto');
+      const {Chart, registerables} = await import('chart.js/auto');
       Chart.register(...registerables);
 
       const buildMonthLabels = (months: string[]) => {
@@ -60,12 +60,11 @@ export function CallOutTrendsChart({
             ),
             datasets: [
               {
-                label: 'CallOuts',
+                label: 'Call-Outs',
                 data: callOutTrends.map(month => month.count),
                 backgroundColor: 'rgba(74, 202, 0, 0.2)',
                 borderColor: 'rgba(74, 202, 0, 1)',
-                borderWidth: 1.5,
-
+                borderWidth: 1.5
               }
             ]
           },

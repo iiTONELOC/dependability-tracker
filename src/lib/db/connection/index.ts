@@ -1,4 +1,4 @@
-import { Dialect, Sequelize } from 'sequelize';
+import {Dialect, Sequelize} from 'sequelize';
 
 export type SequelizeConfig = {
   dbName: string;
@@ -80,6 +80,7 @@ export const defaultSequelizeConfig: SequelizeConfig = {
  *
  * @returns a new instance of the sequelize object
  */
+
 export function getSequelize(props?: SequelizeConfig): Sequelize {
   return new Sequelize(
     props?.dbName ?? process.env.DB_NAME ?? defaultSequelizeConfig.dbName,

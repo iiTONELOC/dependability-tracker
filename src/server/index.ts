@@ -2,27 +2,34 @@ import 'dotenv/config';
 import next from 'next';
 import http from 'http';
 import cors from 'cors';
-import { ip } from './ip';
+import {ip} from './ip';
 import * as fs from 'fs';
-import { parse } from 'url';
+import {parse} from 'url';
+import helmet from 'helmet';
 import * as path from 'path';
 import sequelize from '../lib/db/connection';
-import express, { Express, Request, Response } from 'express';
-import { logTemplate } from '../lib/utils/server';
+import {logTemplate} from '../lib/utils/server';
+import express, {Express, Request, Response} from 'express';
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+export const IS_DEPLOYED = process.env.IS_DEPLOYED === 'true';
 export const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 export const TLS_PORT = PORT + 5;
 
 export const checkForTLS = (): {
   hasSupportForTLS: boolean;
-  tlsOptions: { key: string | Buffer; cert: string | Buffer };
+  tlsOptions: {key: string | Buffer; cert: string | Buffer};
 } => {
   let hasSupportForTLS = false;
-  const tlsOptions: { key: string | Buffer; cert: string | Buffer } = {
+
+  const tlsOptions: {key: string | Buffer; cert: string | Buffer} = {
     key: '',
     cert: ''
   };
+
+  if (IS_DEPLOYED) {
+    return {hasSupportForTLS, tlsOptions};
+  }
 
   const keyPath: string = path.join(process.cwd(), 'cert', 'private_key.pem');
   const certPath: string = path.join(process.cwd(), 'cert', 'certificate.pem');
@@ -33,12 +40,12 @@ export const checkForTLS = (): {
     hasSupportForTLS = true;
   }
 
-  return { hasSupportForTLS, tlsOptions };
+  return {hasSupportForTLS, tlsOptions};
 };
 
 const nextExpress = async (expressApp: Express) => {
   const dev = !IS_PRODUCTION;
-  const nextApp = next({ dev, hostname: 'localhost', port: PORT });
+  const nextApp = next({dev, hostname: 'localhost', port: PORT});
   await nextApp.prepare();
 
   const handle = nextApp.getRequestHandler();
@@ -46,7 +53,7 @@ const nextExpress = async (expressApp: Express) => {
   // @ts-ignore
   expressApp.get('*', async (req: Request, res: Response) => {
     const parsedUrl = parse(req.url, true);
-    const { pathname, query } = parsedUrl;
+    const {pathname, query} = parsedUrl;
     if (pathname === '/a') {
       await nextApp.render(req, res, '/a', query);
     } else if (pathname === '/b') {
@@ -72,7 +79,7 @@ export const startServer = async () => {
     httpServer.close();
     await sequelize.close();
     process.exit(0);
-  }
+  };
 
   // listen for interrupts to gracefully shutdown the server
   process.on('SIGINT', gracefulShutdown);
@@ -81,14 +88,13 @@ export const startServer = async () => {
   process.on('unhandledRejection', gracefulShutdown);
 
   app.set('port', PORT);
-  app.disable('x-powered-by');
-  app.disable('etag');
+  app.use(helmet());
   app.use(cors());
-  app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
-  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}));
+  app.use(express.json({limit: '50mb'}));
 
   // await successful connection to the database
-  await sequelize.sync({ force: false, logging: false });
+  await sequelize.sync({force: false, logging: false});
   // start the next functionality and bootstrap it to the express server
   await nextExpress(app);
 
@@ -96,8 +102,18 @@ export const startServer = async () => {
   await new Promise<void>(resolve => httpServer.listen(PORT, 'localhost', resolve));
   console.log(logTemplate(`\n🚀 LocalHost Server ready at http://localhost:${PORT}\n`)); //NOSONAR
 
-  // check for TLS support
-  const { hasSupportForTLS, tlsOptions } = checkForTLS();
+  // if deployed, print the web address and return
+  if (IS_DEPLOYED) {
+    console.log(logTemplate(`🌎 Deployed Server ready at ${process.env.DEPLOYED_URL}\n`)); //NOSONAR
+    // trust the reverse proxy
+    app.set('trust proxy', 1);
+    return;
+  }
+
+  // check for TLS support, will return false if not supported or deployed - SSL should
+  // be handled by the reverse proxy in production and use a valid certificate not one
+  // that has been self-signed
+  const {hasSupportForTLS, tlsOptions} = checkForTLS();
 
   if (hasSupportForTLS) {
     const hostIP = ip;
@@ -108,14 +124,12 @@ export const startServer = async () => {
   }
 };
 
-
-
 if (require.main === module) {
   (async () => {
     await startServer().catch(e => {
       const errMessage = '❌ Error starting server for Dependability Tracker:' + ' ' + e;
       console.error(logTemplate(errMessage, 'error')); //NOSONAR
       process.exit(1);
-    })
+    });
   })();
 }

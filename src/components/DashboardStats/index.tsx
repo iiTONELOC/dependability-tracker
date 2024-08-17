@@ -81,7 +81,7 @@ export function DashboardStats(): React.JSX.Element {
 
           <div className="bg-tertiary p-4 rounded-md drop-shadow-md mb-6 w-full h-auto">
             <h2 className="text-lg font-medium mb-4 underline underline-offset-4 text-center">
-              Callout Trends
+              Call-Out Trends
             </h2>
             <CallOutTrendsChart callOutTrends={adminData?.callOutTrends} />
           </div>
