@@ -106,22 +106,19 @@ export const startServer = async () => {
   // if deployed, print the web address and return
   if (IS_DEPLOYED) {
     console.log(logTemplate(`🌎 Deployed Server ready at ${process.env.DEPLOYED_URL}\n`)); //NOSONAR
-    // trust the reverse proxy
-    app.set('trust proxy', 1);
-    return;
-  }
+  } else {
+    // check for TLS support, will return false if not supported or deployed - SSL should
+    // be handled by the reverse proxy in production and use a valid certificate not one
+    // that has been self-signed
+    const {hasSupportForTLS, tlsOptions} = checkForTLS();
 
-  // check for TLS support, will return false if not supported or deployed - SSL should
-  // be handled by the reverse proxy in production and use a valid certificate not one
-  // that has been self-signed
-  const {hasSupportForTLS, tlsOptions} = checkForTLS();
-
-  if (hasSupportForTLS) {
-    const hostIP = ip;
-    const https = require('https');
-    const httpsServer = https.createServer(tlsOptions, app);
-    await new Promise<void>(resolve => httpsServer.listen(TLS_PORT, '0.0.0.0', resolve));
-    console.log(logTemplate(`🔒 Local Network Server ready at https://${hostIP}:${TLS_PORT}\n`)); //NOSONAR
+    if (hasSupportForTLS) {
+      const hostIP = ip;
+      const https = require('https');
+      const httpsServer = https.createServer(tlsOptions, app);
+      await new Promise<void>(resolve => httpsServer.listen(TLS_PORT, '0.0.0.0', resolve));
+      console.log(logTemplate(`🔒 Local Network Server ready at https://${hostIP}:${TLS_PORT}\n`)); //NOSONAR
+    }
   }
 };
 
