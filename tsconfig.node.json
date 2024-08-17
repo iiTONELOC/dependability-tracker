@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,9 +18,7 @@
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "./src/server/**/*"
-  ],
+  "include": ["./src/server/**/*", "./src/scripts"],
   "exclude": [
     "./node_modules",
     "./src/assets",
@@ -37,8 +31,7 @@
     "./src/pages",
     "./src/middleware",
     "./src/providers",
-    "./src/scripts",
     "./src/styles",
-    "./src/middleware",
+    "./src/middleware"
   ]
 }
