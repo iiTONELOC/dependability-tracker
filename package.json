@@ -19,7 +19,7 @@
     "sendInvite": "npm run ts -- ./src/scripts/loginCredInvite.ts",
     "seed-callouts-365": "ts-node ./src/lib/db/seeds/callouts.ts 365",
     "test": "node --env-file='.env.test' ./node_modules/.bin/jest --runInBand --detectOpenHandles",
-    "start": "concurrently \"npm run ts ./src/scripts/removeExpired.ts\" \"cross-env NODE_ENV=production node ./dist/server/index.js\"",
+    "start": "concurrently \"node dist/scripts/removeExpired.js\" \"cross-env NODE_ENV=production node ./dist/server/index.js\"",
     "dev": "concurrently \"npm run ts ./src/scripts/removeExpired.ts\" \" cross-env PORT=5000 nodemon --watch src --ext ts --exec ts-node ./src/server/index.ts\""
   },
   "nodemonConfig": {
@@ -48,7 +48,8 @@
     "react-dom": "^18",
     "react-test-renderer": "^18.3.1",
     "sequelize": "^6.37.3",
-    "sharp": "^0.33.4"
+    "sharp": "^0.33.4",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
@@ -70,7 +71,6 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "ts-jest": "^29.1.5",
-    "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
 }
