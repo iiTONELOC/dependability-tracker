@@ -100,7 +100,9 @@ export const startServer = async () => {
   await nextExpress(app);
 
   // start the http server
-  await new Promise<void>(resolve => httpServer.listen(port, 'localhost', resolve));
+  await new Promise<void>(resolve =>
+    httpServer.listen(port, IS_DEPLOYED ? '0.0.0.0' : 'localhost', resolve)
+  );
   console.log(logTemplate(`\n🚀 LocalHost Server ready at http://localhost:${port}\n`)); //NOSONAR
 
   // if deployed, print the web address and return
