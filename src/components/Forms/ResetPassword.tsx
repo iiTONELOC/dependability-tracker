@@ -37,6 +37,8 @@ export function ResetPasswordForm(): React.JSX.Element {
     e?.stopPropagation();
 
     await ClientAPI.Supervisors.ResetPassword(formState);
+    setFormState(defaultResetPasswordFormState);
+    window.location.href = '/';
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLFormElement>): void => {

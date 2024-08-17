@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import {parse} from 'url';
 import helmet from 'helmet';
 import * as path from 'path';
+import {rateLimit} from 'express-rate-limit';
 import sequelize from '../lib/db/connection';
 import {logTemplate} from '../lib/utils/server';
 import express, {Express, Request, Response} from 'express';
@@ -15,6 +16,11 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 export const IS_DEPLOYED = process.env.IS_DEPLOYED === 'true';
 export const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 export const TLS_PORT = PORT + 5;
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: IS_PRODUCTION ? 100 : 1000
+});
 
 export const checkForTLS = (): {
   hasSupportForTLS: boolean;
@@ -89,6 +95,7 @@ export const startServer = async () => {
 
   const port = parseInt(process.env.PORT ?? '3000') ?? PORT ?? 3000;
   app.set('port', port);
+  app.use(limiter);
   app.use(helmet());
   app.use(cors());
   app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}));
@@ -104,10 +111,11 @@ export const startServer = async () => {
     httpServer.listen(port, IS_DEPLOYED ? '0.0.0.0' : 'localhost', resolve)
   );
   console.log(logTemplate(`\n🚀 LocalHost Server ready at http://localhost:${port}\n`)); //NOSONAR
-
+  app.set('trust proxy', 1);
   // if deployed, print the web address and return
   if (IS_DEPLOYED) {
     console.log(logTemplate(`🌎 Deployed Server ready at ${process.env.DEPLOYED_URL}\n`)); //NOSONAR
+    // trust the first proxy
   } else {
     // check for TLS support, will return false if not supported or deployed - SSL should
     // be handled by the reverse proxy in production and use a valid certificate not one

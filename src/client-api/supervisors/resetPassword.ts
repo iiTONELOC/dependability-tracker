@@ -8,10 +8,19 @@ export async function ResetPassword(formState: ResetPasswordFormState): Promise<
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(formState)
     });
-    const {error} = await response.json();
+    const {error, data} = await response.json();
 
     if (!response.ok || error) {
-      throw new Error(error ?? 'Failed to reset password');
+      if (response.status === 429) {
+        makeToast({
+          type: ToastTypes.Error,
+          title: 'Too Many Requests',
+          message: 'Please wait a moment before trying again.'
+        });
+        return;
+      } else {
+        throw new Error(error ?? 'Failed to reset password');
+      }
     }
 
     makeToast({
@@ -20,7 +29,7 @@ export async function ResetPassword(formState: ResetPasswordFormState): Promise<
       message: 'A credential-creation invite has been sent to your registered email.'
     });
 
-    return await response.json();
+    return data;
   } catch (error) {
     makeToast({
       type: ToastTypes.Error,

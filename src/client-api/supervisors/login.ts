@@ -31,7 +31,16 @@ export const Login = async ({
     });
 
     if (!response.ok) {
-      throw new Error('Unauthorized request');
+      if (response.status === 429) {
+        makeToast({
+          type: ToastTypes.Error,
+          title: 'Too Many Requests',
+          message: 'Please wait a moment before trying again.'
+        });
+        return;
+      } else {
+        throw new Error('Unauthorized request');
+      }
     } else {
       const data = await response.json();
 
