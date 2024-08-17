@@ -45,7 +45,7 @@ export const checkForTLS = (): {
 
 const nextExpress = async (expressApp: Express) => {
   const dev = !IS_PRODUCTION;
-  const nextApp = next({dev, hostname: 'localhost', port: PORT});
+  const nextApp = next({dev, port: PORT});
   await nextApp.prepare();
 
   const handle = nextApp.getRequestHandler();
@@ -87,7 +87,8 @@ export const startServer = async () => {
   process.on('uncaughtException', gracefulShutdown);
   process.on('unhandledRejection', gracefulShutdown);
 
-  app.set('port', PORT);
+  const port = parseInt(process.env.PORT ?? '3000') ?? PORT ?? 3000;
+  app.set('port', port);
   app.use(helmet());
   app.use(cors());
   app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}));
@@ -99,8 +100,8 @@ export const startServer = async () => {
   await nextExpress(app);
 
   // start the http server
-  await new Promise<void>(resolve => httpServer.listen(PORT, 'localhost', resolve));
-  console.log(logTemplate(`\n🚀 LocalHost Server ready at http://localhost:${PORT}\n`)); //NOSONAR
+  await new Promise<void>(resolve => httpServer.listen(port, 'localhost', resolve));
+  console.log(logTemplate(`\n🚀 LocalHost Server ready at http://localhost:${port}\n`)); //NOSONAR
 
   // if deployed, print the web address and return
   if (IS_DEPLOYED) {
