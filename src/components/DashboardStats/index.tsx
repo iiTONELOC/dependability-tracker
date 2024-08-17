@@ -51,14 +51,18 @@ export function DashboardStats(): React.JSX.Element {
               <h2 className="text-lg font-medium mb-4 underline underline-offset-4 ">
                 Call-Outs Within The Last Twelve Hours
               </h2>
-              <div className="flex flex-row w-auto overflow-x-auto gap-8 p-2">
+              <div className="flex flex-row w-auto max-w-sm overflow-x-auto gap-8 p-2">
                 {adminData?.callOutsWithinLastTwelveHours?.map(callout => {
                   return (
                     <div
                       key={callout.id}
-                      className="border border-gray-200 dark:border-gray-700 rounded-md p-4 bg-secondary min-w-72 snap-center">
+                      className="border border-gray-200 dark:border-gray-700 rounded-md p-4 bg-secondary min-w-72 snap-center gap-1">
                       <p>
                         <strong>Employee:</strong> {callout?.employee?.name}
+                      </p>
+                      <p>
+                        <strong>Division(s):</strong>{' '}
+                        <em>{callout?.employee?.divisions?.map(div => div.name).join(', ')}</em>
                       </p>
                       <p>
                         <strong>Callout Date:</strong> {dateTo_YYYY_MM_DD(callout?.callout_date)}

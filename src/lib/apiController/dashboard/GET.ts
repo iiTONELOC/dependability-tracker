@@ -7,8 +7,10 @@ import {CallOut, Employee, LeaveType, Supervisor} from '../../db';
 import type {
   CallOutAttributes,
   CallOutWithAssociations,
+  EmployeeAttributes,
   EmployeeWithAssociations
 } from '../../../lib/db/models/types';
+import {populateEmployeeWithDivisions} from '../../db/controller/Employee/helpers';
 
 export type AdminDashboardData = {
   totalCallOuts: number;
@@ -46,7 +48,7 @@ export const getDashboardData = async (): Promise<AdminDashboardData | null> => 
     const supervisorIds: (string | undefined)[] =
       supervisors.map(supervisor => supervisor.supervisor_info?.id) ?? [];
 
-    const employeesWithCallOuts = (
+    let employeesWithCallOuts: EmployeeWithAssociations[] = (
       await Employee.findAll({
         attributes: ['id', 'name'],
         include: [
@@ -78,6 +80,17 @@ export const getDashboardData = async (): Promise<AdminDashboardData | null> => 
         }
       })
     ).map(employee => employee.get({plain: true})) as unknown as EmployeeWithAssociations[];
+
+    employeesWithCallOuts = await Promise.all(
+      employeesWithCallOuts.map(async employee => {
+        const populated = await populateEmployeeWithDivisions(
+          employee as unknown as EmployeeAttributes
+        );
+        employee.divisions = populated.divisions;
+
+        return employee;
+      })
+    );
 
     for (const employee of employeesWithCallOuts) {
       const employeeCallOuts = (employee.callouts ?? []) as CallOutWithAssociations[];
