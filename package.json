@@ -11,7 +11,7 @@
     "removeTel": "npx next telemetry disable",
     "seed": "ts-node ./src/scripts/seedDb.ts",
     "uninstall": "node ./scripts/uninstall.mjs",
-    "build": "next build && tsc -p tsconfig.server.json",
+    "build": "next build && tsc -p tsconfig.node.json",
     "createEnv": "npm run ts -- ./src/scripts/createEnv.ts",
     "seed-callout": "ts-node ./src/lib/db/seeds/callouts.ts",
     "install-service": "node ./scripts/install-as-service.mjs",
