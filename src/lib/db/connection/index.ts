@@ -83,7 +83,7 @@ export const defaultSequelizeConfig: SequelizeConfig = {
 
 export function getSequelize(props?: SequelizeConfig): Sequelize {
   if (process.env.JAWSDB_URL) {
-    return new Sequelize(process.env.JAWSDB_URL);
+    return new Sequelize(process.env.JAWSDB_URL, {logging: false});
   }
 
   return new Sequelize(

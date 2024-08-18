@@ -18,8 +18,14 @@ export const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 export const TLS_PORT = PORT + 5;
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: IS_PRODUCTION ? 100 : 1000
+  windowMs: 1 * 60 * 1000,
+  limit: (req: Request, _: Response) => {
+    if (req.path.startsWith('/api')) {
+      return 120;
+    } else {
+      return 350;
+    }
+  }
 });
 
 export const checkForTLS = (): {
@@ -95,6 +101,7 @@ export const startServer = async () => {
 
   const port = parseInt(process.env.PORT ?? '3000') ?? PORT ?? 3000;
   app.set('port', port);
+  app.set('etag', false);
   app.use(limiter);
   app.use(helmet());
   app.use(cors());

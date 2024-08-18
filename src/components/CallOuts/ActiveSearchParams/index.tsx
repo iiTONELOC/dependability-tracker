@@ -2,7 +2,7 @@ import {ActiveParam} from './ActiveParam';
 import {CallOutAdvancedSearchContext, useCallOutAdvancedSearchContext} from '../../../providers';
 
 const styles = {
-  ul: 'w-full min-h-[40px] mt-3 flex flex-wrap flex-row justify-start sm:justify-center items-center text-sm gap-x-6 gap-y-2'
+  ul: 'w-full min-h-[40px] mt-12 flex flex-wrap flex-row justify-start sm:justify-center items-center text-sm gap-x-6 gap-y-2'
 };
 
 export function ActiveSearchParams() {

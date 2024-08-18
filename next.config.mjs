@@ -6,12 +6,12 @@ const cspHeader = `
   script-src 'self' 'unsafe-inline' 'unsafe-eval';
   style-src 'self' 'unsafe-inline';
   connect-src 'self';
-  frame-src 'self';
+  frame-src 'none';
   font-src 'self';
-  object-src 'self';
+  object-src 'none';
   base-uri 'self';
   form-action 'self';
-  frame-ancestors 'self';}
+  frame-ancestors 'none';
   `;
 
 const nextConfig = {

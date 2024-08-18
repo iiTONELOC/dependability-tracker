@@ -2,7 +2,7 @@
 
 `Node.JS` and a SQL DB, `MySQL` - `MariaDB` - `Postgres`, are prerequisites but their installation is beyond the scope of the installation methods, you can refer to their documentation if installation is required.
 
-Access to a STMP relay is also a vital prerequisite. I used [Brevo](https://brevo.com) for their 300 daily email limit for free usage, which was one of the highest I had seen while looking at other options such as SendGrid, MailTrap, etc.
+Access to a SMTP relay is also a vital prerequisite. I used [Brevo](https://brevo.com) for their 300 daily email limit for free usage, which was one of the highest I had seen while looking at other options such as SendGrid, MailTrap, etc.
 
 ## Download Project from GitHub
 
