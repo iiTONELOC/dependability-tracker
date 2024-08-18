@@ -9,6 +9,9 @@ export type SMTP_Config = {
     user: string;
     pass?: string;
   };
+  tls?: {
+    rejectUnauthorized?: boolean;
+  };
 };
 
 export type Email = {
@@ -24,13 +27,19 @@ export const smtpConfig: SMTP_Config = {
   port: parseInt(process.env.EMAIL_PORT as string),
   secure: process.env.EMAIL_SECURE === 'true',
   auth: {
-    user: process.env.EMAIL_USER as string,
-    pass: process.env.EMAIL_PASS as string
-  }
+    user: process.env.EMAIL_USER as string
+  },
+  tls: {rejectUnauthorized: false}
 };
 
 export const createTransporter = (): Transporter => {
+  const hasEmailPass = process.env.EMAIL_PASS;
+
   const config = {...smtpConfig};
+
+  if (hasEmailPass) {
+    config.auth['pass'] = process.env.EMAIL_PASS;
+  }
 
   return nodemailer.createTransport(config, {
     debug: true,

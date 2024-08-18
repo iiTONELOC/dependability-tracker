@@ -1,12 +1,33 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { logTemplate } from '../lib/utils/server';
+import {logTemplate} from '../lib/utils/server';
 
-const envData = {
+interface EnvData {
+  DB_PORT: string;
+  SEND_EMAILS: string;
+  EMAIL_SECURE: string;
+  DB_HOST: string;
+  JWT_EXPIRES_IN: string;
+  JWT_ALGORITHM: string;
+  DB_NAME: string;
+  EMAIL_PORT: string;
+  DB_DIALECT: string;
+  DB_USER: string;
+  DB_PASS: string;
+  EMAIL_USER: string;
+  EMAIL_HOST: string;
+  EMAIL_SENDER: string;
+  EMAIL_PASS?: string;
+  TEST_EMAIL_USER: string;
+  AES_SALT: string;
+  AES_PEPPER: string;
+  JWT_SECRET: string;
+}
+
+const envData: EnvData = {
   DB_PORT: '3306',
   SEND_EMAILS: 'true',
-  DB_DIALECT: 'mysql',
   EMAIL_SECURE: 'true',
   DB_HOST: 'localhost',
   JWT_EXPIRES_IN: '10h',
@@ -16,11 +37,13 @@ const envData = {
   // Leave the keys, ie DB_USER as is
   // Change any values within <>, be sure to remove the <> like the values above
   EMAIL_PORT: '465',
+  DB_DIALECT: 'mysql',
   DB_USER: '<username>',
   DB_PASS: '<password>',
   EMAIL_USER: '<email_user>',
   EMAIL_HOST: '<email_host>',
   EMAIL_SENDER: '<email_sender',
+  EMAIL_PASS: undefined,
   TEST_EMAIL_USER: '<test_email_user>',
   //   CAN BE LEFT AS IT TO GENERATE RANDOM VALUES OR REPLACED TO USE YOUR OWN
   AES_SALT: '<32-byte salt>', // LEAVE TO GENERATE A RANDOM VALUE
@@ -29,7 +52,9 @@ const envData = {
 };
 
 function createEnvFile(createTestEnv = false) {
-  console.log(logTemplate(`Generating Environment Variable File: ${createTestEnv ? '.env.test' : '.env'}`));
+  console.log(
+    logTemplate(`Generating Environment Variable File: ${createTestEnv ? '.env.test' : '.env'}`)
+  );
   const envPath = path.join(process.cwd(), createTestEnv ? '.env.test' : '.env');
 
   // if the file exists do not overwrite it
@@ -41,6 +66,10 @@ function createEnvFile(createTestEnv = false) {
   let envFile = '';
   for (const key in envData) {
     let value = envData[key as keyof typeof envData];
+
+    if (value === undefined) {
+      continue;
+    }
 
     if (value.includes('<32-')) {
       value = crypto.randomBytes(32).toString('hex');
@@ -58,6 +87,7 @@ if (require.main === module) {
     ,
     createTestEnv,
     emailPort,
+    emailSecure,
     dbUser,
     dbPass,
     emailUser,
@@ -66,11 +96,16 @@ if (require.main === module) {
     testEmailUser,
     aesSalt,
     aesPepper,
-    jwtSecret
+    jwtSecret,
+    dbDialect,
+    emailPassword
   ] = process.argv;
 
   if (emailPort) {
     envData.EMAIL_PORT = emailPort;
+  }
+  if (emailSecure) {
+    envData.EMAIL_SECURE = emailSecure;
   }
   if (dbUser) {
     envData.DB_USER = dbUser;
@@ -100,5 +135,13 @@ if (require.main === module) {
     envData.JWT_SECRET = jwtSecret;
   }
 
-  createEnvFile(createTestEnv ? createTestEnv === 'test' : false);
+  if (dbDialect) {
+    envData.DB_DIALECT = dbDialect;
+  }
+
+  if (emailPassword) {
+    envData['EMAIL_PASS'] = emailPassword;
+  }
+
+  createEnvFile(createTestEnv ? createTestEnv === 'true' : false);
 }
